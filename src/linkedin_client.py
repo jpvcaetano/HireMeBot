@@ -96,3 +96,45 @@ class LinkedInClient:
         except Exception as e:
             logging.error(f"Error fetching messages: {str(e)}")
             return [] 
+
+    def send_message(self, conversation_id: str, message: str) -> bool:
+        """Send a message in a specific conversation"""
+        try:
+            # Navigate to the specific conversation
+            conversation_url = f"{LINKEDIN_MESSAGING_URL}/thread/{conversation_id}/"
+            self.driver.get(conversation_url)
+            
+            # Wait for and find the message input field
+            message_input = self.wait.until(
+                EC.presence_of_element_located((
+                    By.CSS_SELECTOR, 
+                    "div[role='textbox'][contenteditable='true']"
+                ))
+            )
+            
+            # Clear any existing text and send our message
+            message_input.clear()
+            message_input.send_keys(message)
+            
+            # Find and click the send button
+            send_button = self.wait.until(
+                EC.element_to_be_clickable((
+                    By.CSS_SELECTOR, 
+                    "button[type='submit']"
+                ))
+            )
+            send_button.click()
+            
+            # Wait for message to be sent (look for the message in the conversation)
+            self.wait.until(
+                EC.presence_of_element_located((
+                    By.xpath,
+                    f"//div[contains(@class, 'msg-s-message-list__event')]//p[contains(text(), '{message[:30]}')]"
+                ))
+            )
+            
+            return True
+            
+        except Exception as e:
+            logging.error(f"Failed to send message: {str(e)}")
+            return False 

@@ -1,0 +1,19 @@
+JOB_CRITERIA = {
+    "required_skills": [
+        "Python",
+        "Machine Learning",
+        "Data Science"
+    ],
+    "preferred_location": ["Remote", "New York", "San Francisco"],
+    "minimum_experience": 3,
+    "minimum_salary": 120000,
+    "deal_breakers": [
+        "Required onsite 5 days/week",
+        "More than 25% travel"
+    ],
+    "preferred_industries": [
+        "Technology",
+        "Finance",
+        "Healthcare"
+    ]
+} 

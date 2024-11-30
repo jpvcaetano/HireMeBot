@@ -1,6 +1,7 @@
 from openai import OpenAI
 from config.settings import OPENAI_API_KEY
-from config.prompts import PROMPT_TEMPLATES
+from config.prompts import PROMPT_TEMPLATES, JOB_CRITERIA
+from config.prompts.conversation_prompts import ACTIVE_VERSIONS
 import logging
 
 class ChatHandler:
@@ -10,16 +11,21 @@ class ChatHandler:
     def generate_response(self, conversation_history, context, message, template_key="initial_response"):
         """Generate a response using OpenAI's GPT model"""
         try:
-            template = PROMPT_TEMPLATES.get(template_key)
-            if not template:
+            template_group = PROMPT_TEMPLATES.get(template_key)
+            if not template_group:
                 raise ValueError(f"Unknown template key: {template_key}")
-                
+            
+            # Get active version for this template
+            version = ACTIVE_VERSIONS.get(template_key, "v1")
+            template = template_group.get(version)
+            
             messages = [
                 {"role": "system", "content": template["system"]},
                 {"role": "user", "content": template["user"].format(
                     context=context,
                     conversation_history=conversation_history,
-                    message=message
+                    message=message,
+                    criteria=JOB_CRITERIA if template_key == "job_analysis" else None
                 )}
             ]
             
@@ -34,4 +40,4 @@ class ChatHandler:
             
         except Exception as e:
             logging.error(f"Error generating response: {str(e)}")
-            return None 
+            return None
