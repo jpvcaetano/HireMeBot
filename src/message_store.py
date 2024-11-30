@@ -1,11 +1,13 @@
 import json
 from datetime import datetime
 from typing import Dict, List, Optional
+import os
 
 
 class MessageStore:
     def __init__(self, storage_path: str = "data/conversations.json"):
         self.storage_path = storage_path
+        os.makedirs(os.path.dirname(self.storage_path), exist_ok=True)
         self.conversations: Dict[str, List[Dict]] = self._load_conversations()
 
     def _load_conversations(self) -> Dict[str, List[Dict]]:

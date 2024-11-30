@@ -12,6 +12,7 @@ python-dotenv = "^1.0.1"
 notify-py = "^0.3.42"
 isort = "^5.13.2"
 black = "^24.10.0"
+certifi = "^2024.8.30"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"

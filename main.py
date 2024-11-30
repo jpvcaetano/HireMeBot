@@ -30,6 +30,7 @@ def main():
     while True:
         try:
             # Check for new messages
+            #TODO: when we read a new message we should mark it as read
             new_messages = linkedin.get_messages()
 
             for message in new_messages:
@@ -43,26 +44,32 @@ def main():
 
                 # Generate response
                 response = chat_handler.generate_response(
-                    conversation_history=history, message=message["preview"]
+                    conversation_history=history, message=message["preview"], template_key='conversation_response'
                 )
 
+                #TODO: add job analysis
                 # Analyze for job details
-                job_details = job_analyzer.extract_job_details(message["preview"])
-                if job_details:
-                    analysis = job_analyzer.analyze_opportunity(job_details)
-                    if job_analyzer.should_notify(analysis):
-                        notifier.notify_job_opportunity(analysis)
+                # job_details = job_analyzer.extract_job_details(message["preview"])
+                # if job_details:
+                #     analysis = job_analyzer.analyze_opportunity(job_details)
+                #     if job_analyzer.should_notify(analysis):
+                #         notifier.notify_job_opportunity(analysis)
 
-                # Send response
                 if response:
+                    # Send response
                     success = linkedin.send_message(
                         message["conversation_id"], response
                     )
-                    if not success:
+                    if success:
+                        # Store response
+                        message_store.add_message(
+                            message["conversation_id"], "JoãoGPT", response
+                        )
+                    else:
                         logger.error(f"Failed to send response to {message['sender']}")
 
-                # Notify user
-                notifier.notify_new_message(message["sender"], message["preview"])
+
+
 
             # Wait before next check
             time.sleep(CHECK_INTERVAL)

@@ -1,8 +1,14 @@
 import logging
+import ssl
+import certifi
 
 from openai import OpenAI
 
-from config.prompts import JOB_CRITERIA, PROMPT_TEMPLATES
+from config.prompts import (
+    JOB_CRITERIA,
+    PROMPT_TEMPLATES,
+    CONVERSATION_CRITERIA
+)
 from config.prompts.conversation_prompts import ACTIVE_VERSIONS
 from config.settings import OPENAI_API_KEY
 
@@ -10,6 +16,10 @@ from config.settings import OPENAI_API_KEY
 class ChatHandler:
     def __init__(self):
         self.client = OpenAI(api_key=OPENAI_API_KEY)
+        # Disable SSL verification (not recommended for production)
+        ssl_context = self.client._client._transport._pool._ssl_context
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
 
     def generate_response(
         self, conversation_history, message, template_key="initial_response"
@@ -31,15 +41,15 @@ class ChatHandler:
                     "content": template["user"].format(
                         conversation_history=conversation_history,
                         message=message,
-                        criteria=(
-                            JOB_CRITERIA if template_key == "job_analysis" else None
-                        ),
+                        criteria=(CONVERSATION_CRITERIA if template_key == "conversation_response"
+                                 else JOB_CRITERIA if template_key == "job_analysis"
+                                 else None),
                     ),
                 },
             ]
 
             response = self.client.chat.completions.create(
-                model="gpt-4", messages=messages, temperature=0.7, max_tokens=500
+                model="gpt-4o", messages=messages, temperature=0.7, max_tokens=500
             )
 
             return response.choices[0].message.content

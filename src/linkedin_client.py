@@ -1,4 +1,10 @@
 import logging
+import time
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
@@ -75,7 +81,18 @@ class LinkedInClient:
             unread_messages = []
             for thread in message_threads:
                 if "unread" in thread.get_attribute("class"):
-                    conversation_id = thread.get_attribute("data-conversation-id")
+                    # Find the clickable element that contains the conversation link
+                    link_element = thread.find_element(
+                        By.CSS_SELECTOR, "div.msg-conversation-listitem__link"
+                    )
+                    
+                    # Get the current URL before clicking
+                    link_element.click()
+                    conversation_id = self.driver.current_url.split('/messaging/thread/')[1].strip('/')
+                    
+                    # Go back to the messages list
+                    self.driver.back()
+                    
                     sender = thread.find_element(
                         By.CSS_SELECTOR, ".msg-conversation-card__participant-names"
                     ).text
@@ -83,13 +100,11 @@ class LinkedInClient:
                         By.CSS_SELECTOR, ".msg-conversation-card__message-snippet"
                     ).text
 
-                    unread_messages.append(
-                        {
-                            "conversation_id": conversation_id,
-                            "sender": sender,
-                            "preview": preview,
-                        }
-                    )
+                    unread_messages.append({
+                        "conversation_id": conversation_id,
+                        "sender": sender,
+                        "preview": preview,
+                    })
 
             return unread_messages
 
@@ -121,15 +136,8 @@ class LinkedInClient:
             )
             send_button.click()
 
-            # Wait for message to be sent (look for the message in the conversation)
-            self.wait.until(
-                EC.presence_of_element_located(
-                    (
-                        By.xpath,
-                        f"//div[contains(@class, 'msg-s-message-list__event')]//p[contains(text(), '{message[:30]}')]",
-                    )
-                )
-            )
+            # Add a small delay to allow the message to be sent
+            time.sleep(2)
 
             return True
 
