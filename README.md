@@ -22,7 +22,14 @@ cd HireMeBot
 2. Install dependencies:
 
 ```bash
-pip install -r requirements.txt
+# Install Poetry if you haven't already
+curl -sSL https://install.python-poetry.org | python3 -
+
+# Install dependencies
+poetry install
+
+# Activate the virtual environment
+poetry shell
 ```
 
 3. Configure your environment:
@@ -45,6 +52,9 @@ pip install -r requirements.txt
 Run the bot:
 
 ```bash
+# Make sure you're in the poetry shell
+poetry shell
+
 python main.py
 ```
 

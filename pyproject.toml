@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "hirebot"
+version = "0.1.0"
+description = "An intelligent LinkedIn chatbot that handles recruiter conversations"
+authors = ["João Caetano <jpvcaetano@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+selenium = "^4.18.1"
+openai = "^1.12.0"
+python-dotenv = "^1.0.1"
+notify-py = "^0.3.42"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+black = "^24.2.0"
+isort = "^5.13.2"
+flake8 = "^7.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api" 
