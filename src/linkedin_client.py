@@ -1,11 +1,6 @@
 import logging
 import time
 
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -19,6 +14,7 @@ from config.settings import (
     LINKEDIN_PASSWORD,
     SELENIUM_TIMEOUT,
 )
+from src.message_store import MessageStore
 
 
 class LinkedInClient:
@@ -79,8 +75,24 @@ class LinkedInClient:
             )
 
             unread_messages = []
-            for thread in message_threads:
-                if "unread" in thread.get_attribute("class"):
+            for ii, thread in enumerate(message_threads):
+                thread_class = thread.get_attribute("class")
+
+                #TODO: this is a hack to avoid making the first message read since self.driver.get(LINKEDIN_MESSAGING_URL) opens it and makes it read. 
+                # We should make this more robust and clean in the future
+                if ii == 0:
+                    # Get the last message sender
+                    last_message_sender = thread.find_element(
+                        By.CSS_SELECTOR, ".msg-conversation-card__message-snippet-sender"
+                    ).text.strip(" •")  # Remove the bullet point that LinkedIn adds
+   
+                    # If the last message is from myself, we skip it
+                    if last_message_sender == "Jo\u00e3o Caetano":
+                        continue
+                    else:
+                        thread_class = "unread"
+
+                if "unread" in thread_class:
                     # Find the clickable element that contains the conversation link
                     link_element = thread.find_element(
                         By.CSS_SELECTOR, "div.msg-conversation-listitem__link"
