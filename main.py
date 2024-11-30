@@ -47,13 +47,10 @@ def main():
                     conversation_history=history, message=message["preview"], template_key='conversation_response'
                 )
 
-                #TODO: add job analysis
                 # Analyze for job details
-                # job_details = job_analyzer.extract_job_details(message["preview"])
-                # if job_details:
-                #     analysis = job_analyzer.analyze_opportunity(job_details)
-                #     if job_analyzer.should_notify(analysis):
-                #         notifier.notify_job_opportunity(analysis)
+                analysis = job_analyzer.analyze_opportunity(history)
+                if job_analyzer.should_notify(analysis):
+                    notifier.notify_job_opportunity(analysis)
 
                 if response:
                     # Send response

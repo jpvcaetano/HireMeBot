@@ -10,22 +10,16 @@ class JobAnalyzer:
         self.chat_handler = chat_handler
         self.criteria = JOB_CRITERIA
 
-    def extract_job_details(self, message: str) -> Dict[str, Any]:
-        """Extract structured job details from a message"""
-        # This could be enhanced with more sophisticated parsing
-        return {"raw_description": message, "extracted_at": datetime.now().isoformat()}
-
-    def analyze_opportunity(self, job_details: Dict[str, Any]) -> Dict[str, Any]:
+    def analyze_opportunity(self, conversation_history: str) -> Dict[str, Any]:
         """Analyze a job opportunity against criteria"""
         analysis = self.chat_handler.generate_response(
-            conversation_history="",
-            # TODO: Add criteria to the prompt
-            message=str(job_details),
+            conversation_history=conversation_history,
+            message=self.criteria,
             template_key="job_analysis",
         )
 
         return {
-            "job_details": job_details,
+            "conversation_history": conversation_history,
             "analysis": analysis,
             "criteria_used": self.criteria,
             "analyzed_at": datetime.now().isoformat(),
@@ -36,7 +30,7 @@ class JobAnalyzer:
         # This could be enhanced with more sophisticated matching
         try:
             # Extract score from analysis text
-            analysis_text = analysis_result["analysis"]
+            analysis_json = analysis_result["analysis"].to_json()
             if "Match Score" in analysis_text:
                 score_line = [
                     line for line in analysis_text.split("\n") if "Match Score" in line
