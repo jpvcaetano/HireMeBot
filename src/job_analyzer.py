@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Dict, Any
 from config.prompts import JOB_CRITERIA
 from src.chat_handler import ChatHandler
@@ -19,7 +20,7 @@ class JobAnalyzer:
         """Analyze a job opportunity against criteria"""
         analysis = self.chat_handler.generate_response(
             conversation_history="",
-            context=str(self.criteria),
+            # TODO: Add criteria to the prompt
             message=str(job_details),
             template_key="job_analysis"
         )

@@ -10,6 +10,8 @@ selenium = "^4.18.1"
 openai = "^1.12.0"
 python-dotenv = "^1.0.1"
 notify-py = "^0.3.42"
+isort = "^5.13.2"
+black = "^24.10.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"

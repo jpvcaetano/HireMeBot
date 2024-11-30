@@ -8,7 +8,7 @@ class ChatHandler:
     def __init__(self):
         self.client = OpenAI(api_key=OPENAI_API_KEY)
         
-    def generate_response(self, conversation_history, context, message, template_key="initial_response"):
+    def generate_response(self, conversation_history, message, template_key="initial_response"):
         """Generate a response using OpenAI's GPT model"""
         try:
             template_group = PROMPT_TEMPLATES.get(template_key)
@@ -22,7 +22,6 @@ class ChatHandler:
             messages = [
                 {"role": "system", "content": template["system"]},
                 {"role": "user", "content": template["user"].format(
-                    context=context,
                     conversation_history=conversation_history,
                     message=message,
                     criteria=JOB_CRITERIA if template_key == "job_analysis" else None

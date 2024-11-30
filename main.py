@@ -44,7 +44,6 @@ def main():
                 # Generate response
                 response = chat_handler.generate_response(
                     conversation_history=history,
-                    context="Professional conversation with recruiter",
                     message=message['preview']
                 )
                 
