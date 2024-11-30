@@ -9,6 +9,8 @@ An intelligent LinkedIn chatbot that automatically handles recruiter conversatio
 - 📝 Conversation history tracking
 - 🔔 Desktop notifications for new messages and matching opportunities
 - 🎯 Customizable response templates and job preferences
+- 🔄 Version control for conversation templates
+- 🛡️ SSL certificate handling
 
 ## Setup
 
@@ -46,6 +48,7 @@ poetry shell
     - Edit `config/prompts/custom_criteria.py` with your job preferences
     - Customize conversation templates in `config/prompts/conversation_prompts.py`
     - Adjust job analysis templates in `config/prompts/job_analysis_prompts.py`
+    - Configure required job details in `config/prompts/required_job_details.py`
 
 ## Usage
 
@@ -63,6 +66,8 @@ The bot will:
 - Respond to recruiters automatically
 - Analyze job opportunities
 - Send desktop notifications for important events
+- Store conversation history in JSON format
+- Track both incoming and outgoing messages
 
 ## Configuration
 
@@ -72,7 +77,7 @@ The bot will:
 LINKEDIN_EMAIL=your.email@example.com
 LINKEDIN_PASSWORD=your_linkedin_password
 OPENAI_API_KEY=your_openai_api_key
-CHECK_INTERVAL=300
+CHECK_INTERVAL=30  # Time between checks in seconds
 SELENIUM_TIMEOUT=10
 ```
 
@@ -90,6 +95,28 @@ JOB_CRITERIA = {
 }
 ```
 
+### Required Job Details
+
+Edit `config/prompts/required_job_details.py`:
+```python
+CONVERSATION_CRITERIA = {
+    "required_position_info": [
+        "Job title",
+        "Company name",
+        "Location/Remote policy",
+        "Salary range",
+        "Required experience",
+        "Main responsibilities",
+        "Tech stack/Required skills"
+    ],
+    "preferred_communication": [
+        "Direct information in messages",
+        "No external links in initial contact",
+        "Clear job requirements"
+    ]
+}
+```
+
 ## Project Structure
 
 ```
@@ -99,13 +126,16 @@ linkedin-chatbot/
 │   └── prompts/
 │       ├── conversation_prompts.py  # Chat templates
 │       ├── job_analysis_prompts.py  # Analysis templates
-│       └── custom_criteria.py       # Your job preferences
+│       ├── custom_criteria.py       # Your job preferences
+│       └── required_job_details.py  # Required job information
 ├── src/
 │   ├── linkedin_client.py    # LinkedIn automation
 │   ├── chat_handler.py       # GPT integration
 │   ├── message_store.py      # Conversation management
 │   ├── job_analyzer.py       # Opportunity analysis
 │   └── notifier.py           # Desktop notifications
+├── data/
+│   └── conversations.json    # Stored conversation history
 └── main.py                   # Main application
 ```
 
@@ -114,6 +144,7 @@ linkedin-chatbot/
 - Never commit your `.env` file or `custom_criteria.py`
 - Keep your LinkedIn credentials and OpenAI API key secure
 - Review automated responses before enabling auto-send
+- SSL certificate verification can be configured in chat_handler.py
 
 ## Disclaimer
 
