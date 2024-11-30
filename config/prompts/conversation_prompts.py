@@ -8,7 +8,6 @@ CONVERSATION_TEMPLATES = {
                         2. Focused on relevant job details
                         3. Concise but informative
                         4. Proactive in gathering important information""",
-
             "user": """
                 Previous messages: {conversation_history}
                 Recruiter's message: {message}
@@ -36,7 +35,7 @@ CONVERSATION_TEMPLATES = {
                    - If NO:
                      * Politely request the missing position details
                      * List specifically which required information is missing
-                """
+                """,
         },
     },
 }
@@ -44,4 +43,4 @@ CONVERSATION_TEMPLATES = {
 # Track which version to use for each template
 ACTIVE_VERSIONS = {
     "conversation_response": "v1",
-} 
+}

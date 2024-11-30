@@ -13,12 +13,10 @@ JOB_ANALYSIS_TEMPLATES = {
                     - Match Score (0-100)
                     - Key Matches
                     - Potential Concerns
-                    - Recommendation"""
+                    - Recommendation""",
         }
     }
 }
 
 # Track which version to use for each template
-ACTIVE_VERSIONS = {
-    "job_analysis": "v1"
-} 
+ACTIVE_VERSIONS = {"job_analysis": "v1"}
