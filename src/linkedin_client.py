@@ -78,14 +78,17 @@ class LinkedInClient:
             for ii, thread in enumerate(message_threads):
                 thread_class = thread.get_attribute("class")
 
-                #TODO: this is a hack to avoid making the first message read since self.driver.get(LINKEDIN_MESSAGING_URL) opens it and makes it read. 
+                # TODO: this is a hack to avoid making the first message read since self.driver.get(LINKEDIN_MESSAGING_URL) opens it and makes it read.
                 # We should make this more robust and clean in the future
                 if ii == 0:
                     # Get the last message sender
                     last_message_sender = thread.find_element(
-                        By.CSS_SELECTOR, ".msg-conversation-card__message-snippet-sender"
-                    ).text.strip(" •")  # Remove the bullet point that LinkedIn adds
-   
+                        By.CSS_SELECTOR,
+                        ".msg-conversation-card__message-snippet-sender",
+                    ).text.strip(
+                        " •"
+                    )  # Remove the bullet point that LinkedIn adds
+
                     # If the last message is from myself, we skip it
                     if last_message_sender == "Jo\u00e3o Caetano":
                         continue
@@ -97,14 +100,16 @@ class LinkedInClient:
                     link_element = thread.find_element(
                         By.CSS_SELECTOR, "div.msg-conversation-listitem__link"
                     )
-                    
+
                     # Get the current URL before clicking
                     link_element.click()
-                    conversation_id = self.driver.current_url.split('/messaging/thread/')[1].strip('/')
-                    
+                    conversation_id = self.driver.current_url.split(
+                        "/messaging/thread/"
+                    )[1].strip("/")
+
                     # Go back to the messages list
                     self.driver.back()
-                    
+
                     sender = thread.find_element(
                         By.CSS_SELECTOR, ".msg-conversation-card__participant-names"
                     ).text
@@ -112,11 +117,13 @@ class LinkedInClient:
                         By.CSS_SELECTOR, ".msg-conversation-card__message-snippet"
                     ).text
 
-                    unread_messages.append({
-                        "conversation_id": conversation_id,
-                        "sender": sender,
-                        "preview": preview,
-                    })
+                    unread_messages.append(
+                        {
+                            "conversation_id": conversation_id,
+                            "sender": sender,
+                            "preview": preview,
+                        }
+                    )
 
             return unread_messages
 

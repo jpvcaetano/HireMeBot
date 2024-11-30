@@ -1,14 +1,10 @@
 import logging
 import ssl
-import certifi
 
+import certifi
 from openai import OpenAI
 
-from config.prompts import (
-    JOB_CRITERIA,
-    PROMPT_TEMPLATES,
-    CONVERSATION_CRITERIA
-)
+from config.prompts import CONVERSATION_CRITERIA, JOB_CRITERIA, PROMPT_TEMPLATES
 from config.prompts.conversation_prompts import ACTIVE_VERSIONS
 from config.settings import OPENAI_API_KEY
 
@@ -41,9 +37,13 @@ class ChatHandler:
                     "content": template["user"].format(
                         conversation_history=conversation_history,
                         message=message,
-                        criteria=(CONVERSATION_CRITERIA if template_key == "conversation_response"
-                                 else JOB_CRITERIA if template_key == "job_analysis"
-                                 else None),
+                        criteria=(
+                            CONVERSATION_CRITERIA
+                            if template_key == "conversation_response"
+                            else (
+                                JOB_CRITERIA if template_key == "job_analysis" else None
+                            )
+                        ),
                     ),
                 },
             ]

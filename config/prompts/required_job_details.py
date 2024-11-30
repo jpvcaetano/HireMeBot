@@ -6,6 +6,6 @@ CONVERSATION_CRITERIA = {
         "Salary range",
         "Required experience",
         "Main responsibilities",
-        "Tech stack/Required skills"
+        "Tech stack/Required skills",
     ],
-} 
+}

@@ -30,7 +30,7 @@ def main():
     while True:
         try:
             # Check for new messages
-            #TODO: when we read a new message we should mark it as read
+            # TODO: when we read a new message we should mark it as read
             new_messages = linkedin.get_messages()
 
             for message in new_messages:
@@ -44,7 +44,9 @@ def main():
 
                 # Generate response
                 response = chat_handler.generate_response(
-                    conversation_history=history, message=message["preview"], template_key='conversation_response'
+                    conversation_history=history,
+                    message=message["preview"],
+                    template_key="conversation_response",
                 )
 
                 # Analyze for job details
@@ -64,9 +66,6 @@ def main():
                         )
                     else:
                         logger.error(f"Failed to send response to {message['sender']}")
-
-
-
 
             # Wait before next check
             time.sleep(CHECK_INTERVAL)
