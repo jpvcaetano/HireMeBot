@@ -95,20 +95,14 @@ class LinkedInClient:
                 flag = False
                 if ii == 0:
                     try:
+                        # Get all the message blocks for the first conversation
+                        message_blocks = self._get_message_blocks()
 
-                        message_blocks = self.wait.until(
-                            EC.presence_of_all_elements_located(
-                                (By.CSS_SELECTOR, "li.msg-s-message-list__event")
-                            )
-                        )
-                        # Scroll to the last message so it fully loads
-                        self.scroll_to_element(message_blocks[-1])
-                        # Search for the last message name
-                        pattern = r"\n([A-Za-zÀ-ÿ\s]+)\s\d{2}:\d{2}\n"
-                        last_message_name = re.search(pattern, message_blocks[-1].text)
+                        # Get name of last sender
+                        last_sender_name = self._get_last_sender(message_blocks)
 
                         # If the sender name matches your name, skip it
-                        if "João Caetano" in last_message_name.group(1):
+                        if "João Caetano" in last_sender_name:
                             continue
                         else:
                             flag = True
@@ -183,10 +177,38 @@ class LinkedInClient:
             logging.error(f"Failed to send message: {str(e)}")
             return False
 
-    def scroll_to_element(self, element):
+    def _scroll_to_element(self, element):
         """Scrolls to element first, then to the top of the page"""
         # First scroll to element to ensure it's loaded
         self.driver.execute_script(
-            "arguments[0].scrollIntoView({behavior: 'auto', block: 'start'});", element
+            "arguments[0].scrollIntoView({behavior: 'smooth', block: 'start'});",
+            element,
         )
         time.sleep(1)  # Brief pause to ensure element is loaded
+
+    def _get_message_blocks(self):
+        """Get all the message blocks by scrolling to the top of the last message and reading them again"""
+        message_blocks = self.wait.until(
+            EC.presence_of_all_elements_located(
+                (By.CSS_SELECTOR, "li.msg-s-message-list__event")
+            )
+        )
+        self._scroll_to_element(message_blocks[0])
+        message_blocks = self.wait.until(
+            EC.presence_of_all_elements_located(
+                (By.CSS_SELECTOR, "li.msg-s-message-list__event")
+            )
+        )
+
+        return message_blocks
+
+    def _get_last_sender(self, message_blocks):
+        """Get the last user name to send messages"""
+        pattern = r"\n([A-Za-zÀ-ÿ\s]+)\s\d{2}:\d{2}\n"
+
+        for message in reversed(message_blocks):
+            last_message_name = re.search(pattern, message.text)
+            if not last_message_name:
+                continue
+            else:
+                return last_message_name.group(1)
