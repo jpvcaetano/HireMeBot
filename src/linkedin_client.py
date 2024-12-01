@@ -1,4 +1,5 @@
 import logging
+import re
 import time
 
 from selenium import webdriver
@@ -26,7 +27,7 @@ class LinkedInClient:
     def _setup_driver(self):
         """Initialize Chrome driver with appropriate options"""
         options = webdriver.ChromeOptions()
-        options.add_argument("--headless")  # Run in headless mode
+        # options.add_argument("--headless")  # Run in headless mode
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
 
@@ -47,6 +48,19 @@ class LinkedInClient:
             # Find and fill password
             password_input = self.driver.find_element(By.ID, "password")
             password_input.send_keys(LINKEDIN_PASSWORD)
+
+            # Uncheck the "Keep me logged in" checkbox
+            try:
+                keep_logged_in_checkbox = self.driver.find_element(
+                    By.ID, "rememberMeOptIn-checkbox"
+                )
+                if keep_logged_in_checkbox.is_selected():
+                    # Use JavaScript to uncheck the box
+                    self.driver.execute_script(
+                        "arguments[0].click();", keep_logged_in_checkbox
+                    )
+            except Exception as e:
+                logging.warning(f"Could not uncheck 'Remember me' box: {str(e)}")
 
             # Click login button
             login_button = self.driver.find_element(
@@ -76,26 +90,34 @@ class LinkedInClient:
 
             unread_messages = []
             for ii, thread in enumerate(message_threads):
-                thread_class = thread.get_attribute("class")
 
-                # TODO: this is a hack to avoid making the first message read since self.driver.get(LINKEDIN_MESSAGING_URL) opens it and makes it read.
-                # We should make this more robust and clean in the future
+                # Handle the first message differently to avoid marking it as read
+                flag = False
                 if ii == 0:
-                    # Get the last message sender
-                    last_message_sender = thread.find_element(
-                        By.CSS_SELECTOR,
-                        ".msg-conversation-card__message-snippet-sender",
-                    ).text.strip(
-                        " •"
-                    )  # Remove the bullet point that LinkedIn adds
+                    try:
 
-                    # If the last message is from myself, we skip it
-                    if last_message_sender == "Jo\u00e3o Caetano":
-                        continue
-                    else:
-                        thread_class = "unread"
+                        message_blocks = self.wait.until(
+                            EC.presence_of_all_elements_located(
+                                (By.CSS_SELECTOR, "li.msg-s-message-list__event")
+                            )
+                        )
+                        # Scroll to the last message so it fully loads
+                        self.scroll_to_element(message_blocks[-1])
+                        # Search for the last message name
+                        pattern = r"\n([A-Za-zÀ-ÿ\s]+)\s\d{2}:\d{2}\n"
+                        last_message_name = re.search(pattern, message_blocks[-1].text)
 
-                if "unread" in thread_class:
+                        # If the sender name matches your name, skip it
+                        if "João Caetano" in last_message_name.group(1):
+                            continue
+                        else:
+                            flag = True
+                    except Exception as e:
+                        logging.warning(
+                            f"Could not determine first message sender: {str(e)}"
+                        )
+
+                if "unread" in thread.get_attribute("class") or flag:
                     # Find the clickable element that contains the conversation link
                     link_element = thread.find_element(
                         By.CSS_SELECTOR, "div.msg-conversation-listitem__link"
@@ -106,9 +128,6 @@ class LinkedInClient:
                     conversation_id = self.driver.current_url.split(
                         "/messaging/thread/"
                     )[1].strip("/")
-
-                    # Go back to the messages list
-                    self.driver.back()
 
                     sender = thread.find_element(
                         By.CSS_SELECTOR, ".msg-conversation-card__participant-names"
@@ -163,3 +182,11 @@ class LinkedInClient:
         except Exception as e:
             logging.error(f"Failed to send message: {str(e)}")
             return False
+
+    def scroll_to_element(self, element):
+        """Scrolls to element first, then to the top of the page"""
+        # First scroll to element to ensure it's loaded
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({behavior: 'auto', block: 'start'});", element
+        )
+        time.sleep(1)  # Brief pause to ensure element is loaded
